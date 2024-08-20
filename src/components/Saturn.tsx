@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { Planet } from './Planet';
 
-const Earth: React.FC = () => {
+const Saturn: React.FC = () => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   let planetInstance: Planet | null = null;
 
@@ -11,8 +11,29 @@ const Earth: React.FC = () => {
     if (mountElement) {
       const geometry = new THREE.SphereGeometry(1, 32, 32);
       const textureLoader = new THREE.TextureLoader();
-      const texture = textureLoader.load('/src/texture/tierra.png');
+      const texture = textureLoader.load('/src/texture/saturn.jpg');
       const material = new THREE.MeshStandardMaterial({ map: texture });
+
+      const ringTexture = textureLoader.load('/src/texture/saturn_ring.png'); // Textura de los anillos
+      const ringGeometry = new THREE.RingGeometry(1.1, 1.5, 64); // Crear geometría para los anillos
+
+      // Crear el material para los anillos y rotar la textura
+      const ringMaterial = new THREE.MeshStandardMaterial({
+        map: ringTexture,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 1
+      });
+
+      // Rotar la textura de los anillos
+      ringTexture.wrapS = THREE.RepeatWrapping;
+      ringTexture.wrapT = THREE.RepeatWrapping;
+      ringTexture.repeat.set(1, 1);
+      ringTexture.offset.set(0, 0);
+
+      // Aplicar rotación a la textura
+      const angle = Math.PI / 2; // Ángulo de rotación en radianes (45 grados como ejemplo)
+      ringTexture.rotation = angle;
 
       const cameraPosition = new THREE.Vector3(0.5, 0, 2.4);
 
@@ -20,29 +41,16 @@ const Earth: React.FC = () => {
       const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
       directionalLight.position.set(5, 5, 5).normalize();
 
-      const latitude = -14.7090;
-      const longitude = -106.5375;
-      const radius = 0.99;
-
-      const phi = (90 - latitude) * (Math.PI / 180);
-      const theta = (longitude + 180) * (Math.PI / 180);
-
-      const pointPosition = new THREE.Vector3(
-        radius * Math.sin(phi) * Math.cos(theta),
-        radius * Math.cos(phi),
-        radius * Math.sin(phi) * Math.sin(theta)
-      );
-
-      const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-
       planetInstance = new Planet(
         mountElement,
         geometry,
         material,
         cameraPosition,
         { ambient: ambientLight, directional: directionalLight },
-        pointPosition,
-        pointMaterial
+        undefined,
+        undefined,
+        ringGeometry,
+        ringMaterial
       );
     }
 
@@ -54,4 +62,4 @@ const Earth: React.FC = () => {
   return <div ref={mountRef} style={{ width: '100vw', height: '100vh' }} />;
 };
 
-export default Earth;
+export default Saturn;
